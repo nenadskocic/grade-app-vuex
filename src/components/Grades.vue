@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
+    <v-app-bar app color="black" dark>
       <div class="d-flex align-center">
         <v-img
           alt="Vuetify Logo"
@@ -38,7 +38,7 @@
       </v-row>
 
       <div class="mr-16">
-        <v-toolbar height="50px" width="400px">
+        <v-toolbar height="50px" width="300px">
           <v-text-field
             dark
             class="mt-5"
@@ -60,10 +60,10 @@
       </div>
 
       <div>
-        <v-btn>
+        <v-btn height="20px">
           <img src="../assets/ascArrow.png" height="56px" width="56px" />
         </v-btn>
-        <v-btn>
+        <v-btn height="20px">
           <img src="../assets/descArrow.png" height="56px" width="56px" />
         </v-btn>
       </div>
@@ -76,13 +76,13 @@
         </template>
       </div>
 
-      <v-dialog persistent max-width="600px" dark v-if="!this.dialog">
+      <v-dialog persistent max-width="600px" dark v-model="dialog">
         <v-card>
           <v-card-title class="justify-center">
             <span>Add Grade</span>
           </v-card-title>
 
-          <v-form>
+          <v-form v-model="isSubmitValid">
             <v-container grid-list-md text-xs-center>
               <v-layout row>
                 <v-flex xs6>
@@ -114,7 +114,7 @@
                   <v-btn color="red">Cancel</v-btn>
                 </v-flex>
                 <v-flex class="text-left">
-                  <v-btn color="primary" @click="addCourseAndGrade"
+                  <v-btn color="primary" @click="addCourseAndGrade" :disabled="!isSubmitValid"
                     >Create</v-btn
                   >
                 </v-flex>
@@ -171,6 +171,7 @@ export default {
     honoursSwitch: false,
     failedSwitch: false,
     dialog: false,
+    isSubmitValid: false,
     newCourse: "",
     newGrade: "",
   }),
@@ -210,4 +211,8 @@ tbody tr:nth-of-type(odd) {
   font-size: 24px !important;
   text-decoration: underline;
 }
+h1 {
+  white-space: nowrap;
+}
+
 </style>
