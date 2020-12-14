@@ -10,7 +10,7 @@
           transition="scale-transition"
           width="40"
         />
-        <h1>Grade App</h1>
+        <h1>{{ title }}</h1>
         <v-img
           alt="Vuetify Name"
           class="shrink mt-1 hidden-sm-and-down"
@@ -42,7 +42,6 @@
           <v-text-field
             dark
             class="mt-5"
-            v-model="search"
             append-icon="mdi-magnify"
             placeholder="Search"
           >
@@ -69,58 +68,61 @@
         </v-btn>
       </div>
 
-      <v-row class="text-right">
-        <v-col>
-          <v-dialog v-model="dialog" persistent max-width="600px" dark>
-            <template v-slot:activator="{ on }">
-              <v-btn v-on="on">
-                <span class="mr-2">Create</span>
-              </v-btn>
-            </template>
-            <v-card>
-              <v-card-title class="justify-center">
-                <span>Add Grade</span>
-              </v-card-title>
+      <div class="ml-10">
+        <template>
+          <v-btn @click="createBtnClick">
+            <span class="mr-2">Create</span>
+          </v-btn>
+        </template>
+      </div>
 
-              <v-form>
-                <v-container grid-list-md text-xs-center>
-                  <v-layout row>
-                    <v-flex xs6>
-                      <v-text-field
-                        label="Course"
-                        :rules="[rules.courseRequired]"
-                        courseRequired
-                        outlined
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex xs6>
-                      <v-text-field
-                        type="number"
-                        :rules="[rules.gradeRequired, rules.gradeLength]"
-                        gradeLength
-                        maxlength="3"
-                        label="Grade"
-                        placeholder="0"
-                        min="0"
-                        max="100"
-                        outlined
-                      />
-                    </v-flex>
-                  </v-layout>
-                  <v-layout>
-                    <v-flex class="text-right">
-                      <v-btn color="red">Cancel</v-btn>
-                    </v-flex>
-                    <v-flex class="text-left">
-                      <v-btn color="primary" @click="createGrade">Create</v-btn>
-                    </v-flex>
-                  </v-layout>
-                </v-container>
-              </v-form>
-            </v-card>
-          </v-dialog>
-        </v-col>
-      </v-row>
+      <v-dialog persistent max-width="600px" dark v-if="!this.dialog">
+        <v-card>
+          <v-card-title class="justify-center">
+            <span>Add Grade</span>
+          </v-card-title>
+
+          <v-form>
+            <v-container grid-list-md text-xs-center>
+              <v-layout row>
+                <v-flex xs6>
+                  <v-text-field
+                    label="Course"
+                    :rules="[rules.courseRequired]"
+                    v-model="newCourse"
+                    courseRequired
+                    outlined
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs6>
+                  <v-text-field
+                    type="number"
+                    :rules="[rules.gradeRequired, rules.gradeLength]"
+                    v-model="newGrade"
+                    gradeLength
+                    maxlength="3"
+                    label="Grade"
+                    placeholder="0"
+                    min="0"
+                    max="100"
+                    outlined
+                  />
+                </v-flex>
+              </v-layout>
+              <v-layout>
+                <v-flex class="text-right">
+                  <v-btn color="red">Cancel</v-btn>
+                </v-flex>
+                <v-flex class="text-left">
+                  <v-btn color="primary" @click="addCourseAndGrade"
+                    >Create</v-btn
+                  >
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-form>
+        </v-card>
+      </v-dialog>
     </v-app-bar>
 
     <v-simple-table dark class="table">
@@ -133,62 +135,34 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in courses" :key="item.course">
-            <td>{{ item.course }}</td>
-            <td>{{ item.mark }}</td>
-            <td>{{ item.action }}</td>
+          <tr v-for="(course, index) in courses" v-bind:key="index">
+            <td>{{ course.courseName }}</td>
+            <td>{{ course.mark }}</td>
+
+            <td>
+              <v-btn @click="removeCourses(index)">
+                <img src="../assets/removeBtn.png" height="24px" width="24px" />
+              </v-btn>
+            </td>
           </tr>
         </tbody>
       </template>
     </v-simple-table>
 
-    <v-footer>
-      <v-row>
-        <v-col>
-          <h3>Minimum</h3>
-          <p>TEST</p>
-        </v-col>
-        <v-col>
-          <h3>Maximum</h3>
-          <p>TEST</p>
-        </v-col>
-        <v-col>
-          <h3>Average</h3>
-          <p>TEST</p>
-        </v-col>
-      </v-row>
-    </v-footer>
+    <FooterStats />
   </v-app>
 </template>
 
 <script>
+import FooterStats from "@/components/FooterStats.vue";
+import { mapState, mapMutations, mapActions } from "vuex";
+
 export default {
   name: "Grades",
 
   data: () => ({
     items: ["Course", "Mark"],
-    courses: [
-      {
-        course: "Emerging Web Technologies",
-        mark: "60",
-      },
-      {
-        course: "Software Capstone",
-        mark: "80",
-      },
-      {
-        course: "Enterprise Java",
-        mark: "90",
-      },
-      {
-        course: "Machine Learning",
-        mark: "70",
-      },
-      {
-        course: "iPhone Programming",
-        mark: "40",
-      },
-    ],
+
     rules: {
       gradeRequired: (value) => !!value || "Please input a grade.",
       gradeLength: (value) => value.length <= 3 || "Max 3 digits.",
@@ -197,16 +171,40 @@ export default {
     honoursSwitch: false,
     failedSwitch: false,
     dialog: false,
+    newCourse: "",
+    newGrade: "",
   }),
+  components: {
+    FooterStats,
+  },
+  computed: {
+    ...mapState(["title", "courses"]),
+  },
   methods: {
-    createGradeClicked() {},
+    ...mapMutations(["ADD_COURSE"]),
+    ...mapActions(["removeCourse"]),
+    addCourseAndGrade: function () {
+      this.ADD_COURSE({ courseName: this.newCourse, mark: this.newGrade });
+      this.newCourse = "";
+      this.newGrade = "";
+      this.dialog = false;
+    },
+    removeCourses: function (course) {
+      this.removeCourse(course);
+    },
+    isDialog() {
+      return this.dialog;
+    },
+    createBtnClick() {
+      this.dialog = true;
+    },
   },
 };
 </script>
 
 <style scoped>
 tbody tr:nth-of-type(odd) {
-  background-color: dimgray;
+  background-color: rgb(73, 76, 80);
 }
 .table thead th {
   font-size: 24px !important;
