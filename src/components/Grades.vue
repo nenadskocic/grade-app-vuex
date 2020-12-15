@@ -53,19 +53,36 @@
         <v-container class="mt-7">
           <v-row align="center">
             <v-col class="d-flex" cols="12" sm="6">
-              <v-select :items="items" label="Course" solo></v-select>
+              <v-select
+                :items="headers"
+                label="Course"
+                v-model="itemType"
+                solo
+              ></v-select>
             </v-col>
           </v-row>
         </v-container>
       </div>
 
       <div>
-        <v-btn height="20px">
-          <img src="../assets/ascArrow.png" @click="sortAscending" height="56px" width="56px" />
-        </v-btn>
-        <v-btn height="20px">
-          <img src="../assets/descArrow.png"  @click="sortDescending" height="56px" width="56px" />
-        </v-btn>
+        <div>
+          <v-btn
+            height="20px"
+            @click="sort('asc')"
+            :disabled="sortDirection == 'asc'"
+          >
+            <img src="../assets/ascArrow.png" height="56px" width="56px" />
+          </v-btn>
+        </div>
+        <div>
+          <v-btn
+            height="20px"
+            @click="sort('desc')"
+            :disabled="sortDirection == 'desc'"
+          >
+            <img src="../assets/descArrow.png" height="56px" width="56px" />
+          </v-btn>
+        </div>
       </div>
 
       <div class="ml-10">
@@ -79,7 +96,7 @@
       <v-dialog persistent max-width="600px" dark v-model="dialog">
         <v-card>
           <v-card-title class="justify-center">
-            <span>Add Grade</span>
+            <span>{{ dialogTitle }}</span>
           </v-card-title>
 
           <v-form v-model="isSubmitValid">
@@ -111,11 +128,14 @@
               </v-layout>
               <v-layout>
                 <v-flex class="text-right">
-                  <v-btn color="red">Cancel</v-btn>
+                  <v-btn color="red" @click="cancel">Cancel</v-btn>
                 </v-flex>
                 <v-flex class="text-left">
-                  <v-btn color="primary" @click="addCourseAndGrade" :disabled="!isSubmitValid"
-                    >Create</v-btn
+                  <v-btn
+                    color="primary"
+                    @click="addEditCourse"
+                    :disabled="!isSubmitValid"
+                    >{{ dialogBtnTitle }}</v-btn
                   >
                 </v-flex>
               </v-layout>
@@ -129,9 +149,13 @@
       <template v-slot:default>
         <thead>
           <tr>
-            <th class="text-left">Course</th>
-            <th class="text-left">Mark</th>
-            <th class="text-left">Action</th>
+            <th
+              class="text-left"
+              v-for="header in headers"
+              v-bind:key="header.page"
+            >
+              {{ header.text }}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -140,8 +164,15 @@
             <td>{{ course.mark }}</td>
 
             <td>
-              <v-btn @click="removeCourses(index)">
-                <img src="../assets/removeBtn.png" height="24px" width="24px" />
+              <v-btn @click="removeCourses(index)" height="24px">
+                <img
+                  src="../assets/removeIcon.png"
+                  height="24px"
+                  width="24px"
+                />
+              </v-btn>
+              <v-btn @click="editCourse(index)" height="24px">
+                <img src="../assets/editIcon.svg" height="24px" width="24px" />
               </v-btn>
             </td>
           </tr>
@@ -161,8 +192,6 @@ export default {
   name: "Grades",
 
   data: () => ({
-    items: ["Course", "Mark"],
-
     rules: {
       gradeRequired: (value) => !!value || "Please input a grade.",
       gradeLength: (value) => value.length <= 3 || "Max 3 digits.",
@@ -172,39 +201,64 @@ export default {
     failedSwitch: false,
     dialog: false,
     isSubmitValid: false,
+    dialogTitle: "",
     newCourse: "",
     newGrade: "",
+    sortDirection: "asc",
+    dialogBtnTitle: "",
+    itemType: "",
   }),
   components: {
     FooterStats,
   },
   computed: {
-    ...mapState(["title", "courses"]),
+    ...mapState(["title", "courses", "headers"]),
   },
   methods: {
-    ...mapMutations(["ADD_COURSE"]),
+    ...mapMutations(["ADD_COURSE", "EDIT_COURSE"]),
     ...mapActions(["removeCourse"]),
-    addCourseAndGrade: function () {
-      this.ADD_COURSE({ courseName: this.newCourse, mark: this.newGrade });
-      this.newCourse = "";
-      this.newGrade = "";
-      this.dialog = false;
+
+    addEditCourse: function () {
+      if (this.dialogTitle == "Add Grade") {
+        this.ADD_COURSE({ courseName: this.newCourse, mark: this.newGrade });
+        this.newCourse = "";
+        this.newGrade = "";
+        this.dialog = false;
+      } else {
+        this.editCourse();
+      }
     },
     removeCourses: function (course) {
       this.removeCourse(course);
+    },
+    editCourse: function () {
+      this.dialog = true;
+      this.dialogTitle = "Edit Grade";
+      this.dialogBtnTitle = "Save";
     },
     isDialog() {
       return this.dialog;
     },
     createBtnClick() {
       this.dialog = true;
+      this.dialogTitle = "Add Grade";
+      this.dialogBtnTitle = "Create";
     },
-    sortAscending() {
-      
+    cancel() {
+      this.dialog = false;
     },
-    sortDescending() {
+    sort(direction) {
+      this.sortDirection = direction;
 
-    }
+      var col = this.itemType;
+      console.log(col);
+
+      if (this.sortDirection == "desc") {
+        this.courses = this.courses.sort((a, b) => (a[col] > b[col] ? 1 : -1));
+      } else {
+        this.courses = this.courses.sort((a, b) => (a[col] < b[col] ? 1 : -1));
+      }
+    },
   },
 };
 </script>
@@ -214,11 +268,10 @@ tbody tr:nth-of-type(odd) {
   background-color: rgb(73, 76, 80);
 }
 .table thead th {
-  font-size: 24px !important;
+  font-size: 20px !important;
   text-decoration: underline;
 }
 h1 {
   white-space: nowrap;
 }
-
 </style>
