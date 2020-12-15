@@ -6,6 +6,17 @@ Vue.use(Vuex)
 export default new Vuex.Store( {
     state: {
         title: "Grade App",
+        headers: [
+            { 
+                text: "Course",
+                align: "start",
+                value: "courseName",
+            },
+            { 
+                text: "Mark",
+                value: "mark",
+            },
+        ],
         courses: [
             {
                 courseName: "Emerging Web Technologies",
@@ -13,7 +24,7 @@ export default new Vuex.Store( {
             },
             {
                 courseName: "Software Capstone",
-                mark: "80",
+                mark: "29",
             },
             {
                 courseName: "Enterprise Java",
@@ -27,10 +38,19 @@ export default new Vuex.Store( {
                 courseName: "iPhone Programming",
                 mark: "40",
             },
-          ],
-    },
-    getters: {
+        ],
+        edited: [ 
+            {
+            courseName: "",
+            mark: "0",
+            }
+        ],
 
+    },  
+    getters: {
+        all: (state) => {
+            return state.courses;
+        }
     },
     mutations: {
         ADD_COURSE: (state, course) => {
@@ -41,11 +61,22 @@ export default new Vuex.Store( {
         },
         REMOVE_COURSE: (state, course) => {
             state.courses.splice(course, 1)
+        },   
+        EDIT_COURSE: (state, course) => {
+            state.courses.push({
+                courseName: course.courseName,
+                mark: course.mark
+            }) 
+            //state.courses.indexOf(course, 1)
+            //.courseName = this.courses.courseName(1)
+            
+            //this.index = state.courses.indexOf(course)
+            //this.edited = Object.assign({}, course)
         },
     },
     actions: {
         removeCourse: (context, course) => {
             context.commit("REMOVE_COURSE", course)
-        }
+        },
     }
 })
