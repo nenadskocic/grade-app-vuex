@@ -61,10 +61,10 @@
 
       <div>
         <v-btn height="20px">
-          <img src="../assets/ascArrow.png" height="56px" width="56px" />
+          <img src="../assets/ascArrow.png" @click="sortAscending" height="56px" width="56px" />
         </v-btn>
         <v-btn height="20px">
-          <img src="../assets/descArrow.png" height="56px" width="56px" />
+          <img src="../assets/descArrow.png"  @click="sortDescending" height="56px" width="56px" />
         </v-btn>
       </div>
 
@@ -199,6 +199,12 @@ export default {
     createBtnClick() {
       this.dialog = true;
     },
+    sortAscending() {
+      
+    },
+    sortDescending() {
+
+    }
   },
 };
 </script>
