@@ -24,7 +24,7 @@ export default new Vuex.Store( {
             },
             {
                 courseName: "Software Capstone",
-                mark: "29",
+                mark: "35",
             },
             {
                 courseName: "Enterprise Java",
@@ -32,11 +32,7 @@ export default new Vuex.Store( {
             },
             {
                 courseName: "Machine Learning",
-                mark: "70",
-            },
-            {
-                courseName: "iPhone Programming",
-                mark: "40",
+                mark: "64",
             },
         ],
         edited: [ 
@@ -47,11 +43,6 @@ export default new Vuex.Store( {
         ],
 
     },  
-    getters: {
-        all: (state) => {
-            return state.courses;
-        }
-    },
     mutations: {
         ADD_COURSE: (state, course) => {
             state.courses.push({
@@ -78,5 +69,5 @@ export default new Vuex.Store( {
         removeCourse: (context, course) => {
             context.commit("REMOVE_COURSE", course)
         },
-    }
+    },
 })
