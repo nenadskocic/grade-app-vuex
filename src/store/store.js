@@ -43,8 +43,6 @@ export default new Vuex.Store( {
         ],
 
     },  
-    getters: {
-    },
     mutations: {
         ADD_COURSE: (state, course) => {
             state.courses.push({
@@ -66,11 +64,10 @@ export default new Vuex.Store( {
             //this.index = state.courses.indexOf(course)
             //this.edited = Object.assign({}, course)
         },
-
     },
     actions: {
         removeCourse: (context, course) => {
             context.commit("REMOVE_COURSE", course)
         },
-    }
+    },
 })
