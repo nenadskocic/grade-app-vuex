@@ -24,6 +24,7 @@
         <v-switch
           class="mr-16"
           v-model="honoursSwitch"
+          @click="honoursSearch"
           color="#0EEB50"
           options="hsOptions"
           label="Honours"
@@ -31,6 +32,7 @@
         </v-switch>
         <v-switch
           v-model="failedSwitch"
+          @click="failedSearch"
           color="#FF0000"
           options="fsOptions"
           label="Failed"
@@ -42,8 +44,9 @@
           <v-text-field
             dark
             class="mt-5"
+            v-model="searchCourse"
             append-icon="mdi-magnify"
-            placeholder="Search"
+            placeholder="Search Course"
           >
           </v-text-field>
         </v-toolbar>
@@ -159,7 +162,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(course, index) in courses" v-bind:key="index">
+          <tr v-for="(course, index) in filteredUsers" v-bind:key="index">
             <td>{{ course.courseName }}</td>
             <td>{{ course.mark }}</td>
 
@@ -207,12 +210,21 @@ export default {
     sortDirection: "asc",
     dialogBtnTitle: "",
     itemType: "",
+    col: "",
+    searchCourse: "",
   }),
   components: {
     FooterStats,
   },
   computed: {
     ...mapState(["title", "courses", "headers"]),
+
+    filteredUsers: function () {
+      return this.courses
+        .filter(this.searchByCourse)
+        .filter(this.honoursSearch)
+        .filter(this.failedSearch);
+    },
   },
   methods: {
     ...mapMutations(["ADD_COURSE", "EDIT_COURSE"]),
@@ -251,12 +263,36 @@ export default {
       this.sortDirection = direction;
 
       var col = this.itemType;
-      console.log(col);
 
       if (this.sortDirection == "desc") {
-        this.courses = this.courses.sort((a, b) => (a[col] > b[col] ? 1 : -1));
+        this.courses.sort((a, b) => (a[col] > b[col] ? 1 : -1));
       } else {
-        this.courses = this.courses.sort((a, b) => (a[col] < b[col] ? 1 : -1));
+        this.courses.sort((a, b) => (a[col] < b[col] ? 1 : -1));
+      }
+    },
+    searchByCourse(course) {
+      if (this.searchCourse.length === 0) {
+        return true;
+      }
+
+      return (
+        course.courseName
+          .toLowerCase()
+          .indexOf(this.searchCourse.toLowerCase()) > -1
+      );
+    },
+    honoursSearch(course) {
+      if (this.honoursSwitch == true) {
+        return course.mark >= 80;
+      } else {
+        return true;
+      }
+    },
+    failedSearch(course) {
+      if (this.failedSwitch == true) {
+        return course.mark < 50;
+      } else {
+        return true;
       }
     },
   },
