@@ -1,3 +1,7 @@
+/**
+ * I, Nenad Skocic, 000107650 certify that this material is my original work. 
+ * No other person's work has been used without due acknowledgment.
+ */
 import Vue from "vue";
 import Vuex from 'vuex';
 
@@ -35,13 +39,6 @@ export default new Vuex.Store( {
                 mark: "64",
             },
         ],
-        edited: [ 
-            {
-            courseName: "",
-            mark: "0",
-            }
-        ],
-
     },  
     mutations: {
         ADD_COURSE: (state, course) => {
@@ -54,8 +51,7 @@ export default new Vuex.Store( {
             state.courses.splice(course, 1)
         },   
         EDIT_COURSE: (state, course) => {
-            state.courses.splice(course, 1, {courseName: course.courseName, mark: course.mark })
-            //state.courses.mark = { courseName: course.courseName, mark: course.mark }
+            state.courses.splice(course, 1, { courseName: course.courseName, mark: course.mark }) 
         },
     },
     actions: {
