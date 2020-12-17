@@ -54,15 +54,8 @@ export default new Vuex.Store( {
             state.courses.splice(course, 1)
         },   
         EDIT_COURSE: (state, course) => {
-            state.courses.push({
-                courseName: course.courseName,
-                mark: course.mark
-            }) 
-            //state.courses.indexOf(course, 1)
-            //.courseName = this.courses.courseName(1)
-            
-            //this.index = state.courses.indexOf(course)
-            //this.edited = Object.assign({}, course)
+            state.courses.splice(course, 1, {courseName: course.courseName, mark: course.mark })
+            //state.courses.mark = { courseName: course.courseName, mark: course.mark }
         },
     },
     actions: {

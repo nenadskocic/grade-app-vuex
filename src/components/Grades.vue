@@ -174,7 +174,7 @@
                   width="24px"
                 />
               </v-btn>
-              <v-btn @click="editCourse(index)" height="24px">
+              <v-btn @click="editCourses(index)" height="24px">
                 <img src="../assets/editIcon.svg" height="24px" width="24px" />
               </v-btn>
             </td>
@@ -274,19 +274,20 @@ export default {
       if (this.dialogTitle == "Add Grade") {
         this.ADD_COURSE({ courseName: this.newCourse, mark: this.newGrade });
         this.newCourse = "";
-        this.newGrade = "";
+        this.newGrade = "";     
         this.dialog = false;
       } else {
-        this.editCourse();
+        this.editCourses();
       }
     },
     removeCourses: function (course) {
       this.removeCourse(course);
     },
-    editCourse: function () {
+    editCourses: function () {
       this.dialog = true;
       this.dialogTitle = "Edit Grade";
       this.dialogBtnTitle = "Save";
+      this.EDIT_COURSE({ courseName: this.newCourse, mark: this.newGrade });
     },
     isDialog() {
       return this.dialog;
