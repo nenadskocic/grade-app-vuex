@@ -117,7 +117,12 @@
                 <v-flex xs6>
                   <v-text-field
                     type="number"
-                    :rules="[rules.gradeRequired, rules.gradeLength]"
+                    :rules="[
+                      rules.gradeRequired,
+                      rules.gradeLength,
+                      rules.gradeMax,
+                      rules.gradeMin,
+                    ]"
                     v-model="newGrade"
                     gradeLength
                     maxlength="3"
@@ -162,7 +167,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(course, index) in filteredUsers" v-bind:key="index">
+          <tr v-for="(course, index) in filteredUsers" v-bind:key="index.page">
             <td>{{ course.courseName }}</td>
             <td>{{ course.mark }}</td>
 
@@ -203,7 +208,6 @@
 </template>
 
 <script>
-//import FooterStats from "@/components/FooterStats.vue";
 import { mapState, mapMutations, mapActions } from "vuex";
 
 export default {
@@ -213,6 +217,8 @@ export default {
     rules: {
       gradeRequired: (value) => !!value || "Please input a grade.",
       gradeLength: (value) => value.length <= 3 || "Max 3 digits.",
+      gradeMax: (value) => value <= 100 || "Max grade is 100.",
+      gradeMin: (value) => value >= 0 || "Min grade is 0.",
       courseRequired: (value) => !!value || "Please input a course name.",
     },
     honoursSwitch: false,
@@ -227,6 +233,8 @@ export default {
     itemType: "",
     col: "",
     searchCourse: "",
+    isCancel: false,
+    sum: 0,
   }),
   components: {},
   computed: {
@@ -260,10 +268,13 @@ export default {
       if (this.filteredUsers.length == 0) {
         return;
       }
-      let sum = this.filteredUsers.reduce(
-        (a, b) => Number(a.mark) + Number(b.mark)
-      );
-      return sum;
+      let sum = 0;
+      let avg = 0;
+      for (var i = 0; i < this.filteredUsers.length; i++) {
+        sum += Number(this.filteredUsers[i].mark);
+        avg = sum / this.filteredUsers.length;
+      }
+      return avg.toFixed(2);
     },
   },
   methods: {
@@ -273,8 +284,6 @@ export default {
     addEditCourse: function () {
       if (this.dialogTitle == "Add Grade") {
         this.ADD_COURSE({ courseName: this.newCourse, mark: this.newGrade });
-        this.newCourse = "";
-        this.newGrade = "";     
         this.dialog = false;
       } else {
         this.editCourses();
@@ -283,11 +292,12 @@ export default {
     removeCourses: function (course) {
       this.removeCourse(course);
     },
-    editCourses: function () {
+    editCourses: function (course) {
       this.dialog = true;
       this.dialogTitle = "Edit Grade";
       this.dialogBtnTitle = "Save";
-      this.EDIT_COURSE({ courseName: this.newCourse, mark: this.newGrade });
+
+      this.EDIT_COURSE(course);
     },
     isDialog() {
       return this.dialog;
